@@ -31,11 +31,17 @@ os.makedirs(SIG_DIR, exist_ok=True)
 # 1. ENHANCEMENT
 
 def contrast_stretch(img):
-    mn, mx = np.min(img), np.max(img)
-    if mx == mn:
-        return img
-    return ((img - mn) * 255 / (mx - mn)).astype(np.uint8)
+    mn = float(np.min(img))
+    mx = float(np.max(img))
 
+    if mx == mn:
+        return img.copy()
+
+    img_float = img.astype(np.float32)
+
+    hasil = (img_float - mn) * 255.0 / (mx - mn)
+
+    return np.clip(hasil, 0, 255).astype(np.uint8)
 
 def clahe(img):
     return cv2.createCLAHE(
@@ -321,7 +327,7 @@ for filename in files:
         hasil_ocr.append((
             nama, nomor, hitung_cer(nomor), enhanced
         ))
-
+    
     terbaik = min(hasil_ocr, key=lambda x: x[2])
 
     (signature, percentage, metode_sig, ocr_visual,
